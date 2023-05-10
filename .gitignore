@@ -1,0 +1,8 @@
+# Git
+.git/
+
+# CMake
+CMakeLists.txt.user
+
+# Build
+build/
