@@ -14,7 +14,7 @@ GridView {
         width: root.cellWidth
         height: root.cellHeight
 
-        visible: display !== root.gameModel.tilesNumber
+        visible: display !== 0
 
         Tile {
             anchors.fill: backgroundDelegate

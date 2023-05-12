@@ -6,8 +6,8 @@ game::GameBoard::GameBoard(const size_t boardSize, QObject *parent) :
 {
     m_initialState.resize(qPow(m_boardSize, 2));
 
-    // Fill the vector with the numbers from 1 to size() - 1
-    std::iota(m_initialState.begin(), m_initialState.end(), 1);
+    // Fill the vector with the numbers [0, size)
+    std::iota(m_initialState.begin(), m_initialState.end(), 0);
 
     // Set a seed to the random number generator
     std::random_device rd{};
@@ -32,9 +32,9 @@ void game::GameBoard::currentToInitial()
 
 void game::GameBoard::moveElement(size_t index)
 {
-    std::function<bool(size_t, size_t)> isLegal = [&](size_t currentElementIndex, size_t hiddenElementIndex)
+    std::function<bool(size_t, size_t)> isLegal = [this](size_t currentIndex, size_t blankIndex)
     {
-        std::function<std::pair<size_t, size_t>(const size_t)> getCoordinates = [&](const size_t elementIndex)
+        std::function<std::pair<size_t, size_t>(const size_t)> getCoordinates = [this](const size_t elementIndex)
         {
             const size_t row = elementIndex / m_boardSize, column = elementIndex % m_boardSize;
             return std::make_pair(row, column);
@@ -46,19 +46,19 @@ void game::GameBoard::moveElement(size_t index)
             return distance;
         };
 
-        if (currentElementIndex == hiddenElementIndex) return false;
+        if (currentIndex == blankIndex) return false;
 
-        const auto currentElementPosition = getCoordinates(currentElementIndex),
-            hiddenElementPosition = getCoordinates(hiddenElementIndex);
+        const auto currentElementPosition = getCoordinates(currentIndex),
+            blankElementPosition = getCoordinates(blankIndex);
 
-        if (currentElementPosition.first == hiddenElementPosition.first)
+        if (currentElementPosition.first == blankElementPosition.first)
         {
-            size_t distance = getDistance(currentElementPosition.second, hiddenElementPosition.second);
+            size_t distance = getDistance(currentElementPosition.second, blankElementPosition.second);
             if (distance == 1) return true;
         }
-        if (currentElementPosition.second == hiddenElementPosition.second)
+        if (currentElementPosition.second == blankElementPosition.second)
         {
-            size_t distance = getDistance(currentElementPosition.first, hiddenElementPosition.first);
+            size_t distance = getDistance(currentElementPosition.first, blankElementPosition.first);
             if (distance == 1) return true;
         }
         return false;
@@ -66,17 +66,59 @@ void game::GameBoard::moveElement(size_t index)
 
     if (index >= m_currentState.size()) return;
 
-    size_t hiddenElementIndex = std::find(m_currentState.begin(), m_currentState.end(), m_currentState.size()) - m_currentState.begin();
-    if (isLegal(index, hiddenElementIndex))
+    size_t blankElementIndex = std::find(m_currentState.begin(), m_currentState.end(), 0) - m_currentState.begin();
+    if (isLegal(index, blankElementIndex))
     {
-        std::swap(m_currentState[index], m_currentState[hiddenElementIndex]);
+        std::swap(m_currentState[index], m_currentState[blankElementIndex]);
         emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0));
     }
 }
 
 void game::GameBoard::shuffle()
 {
-    std::shuffle(m_initialState.begin(), m_initialState.end(), m_generator);
+    std::function<size_t()> calculateInversions = [this]()
+    {
+        size_t res{};
+
+        for (size_t i = 0; i < m_initialState.size() - 1; ++i)
+        {
+            for (size_t j = i + 1; j < m_initialState.size(); ++j)
+            {
+                if (m_initialState[i].value() and m_initialState[j].value()
+                    and m_initialState[i].value() > m_initialState[j].value())
+                    ++res;
+            }
+        }
+
+        return res;
+    };
+    std::function<size_t()> blankElementRow = [this]()
+    {
+        size_t index = std::find(m_initialState.begin(), m_initialState.end(), 0) - m_initialState.begin();
+        size_t defaultRow = index / m_boardSize;
+        size_t rowFromEnd = m_boardSize - defaultRow;
+        return rowFromEnd;
+    };
+
+    std::function<bool()> isSolvable = [this, &calculateInversions, &blankElementRow]()
+    {
+        size_t inversionCount = calculateInversions();
+
+        if (m_boardSize & 1)
+        {
+            return !(inversionCount & 1);
+        }
+
+        size_t row = blankElementRow();
+        bool res = (row & 1) ? !(inversionCount & 1) : inversionCount & 1;
+        return res;
+    };
+
+    do
+    {
+        std::shuffle(m_initialState.begin(), m_initialState.end(), m_generator);
+    }
+    while (!isSolvable());
 }
 
 int game::GameBoard::rowCount(const QModelIndex &parent) const
@@ -100,9 +142,4 @@ QVariant game::GameBoard::data(const QModelIndex &index, int role) const
 size_t game::GameBoard::boardSize() const
 {
     return m_boardSize;
-}
-
-size_t game::GameBoard::tilesNumber() const
-{
-    return m_currentState.size();
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tile.hpp"
-#include "qqmlintegration.h"
+#include <QtQmlIntegration>
 #include <QAbstractListModel>
 #include <random>
 
@@ -13,7 +13,6 @@ class GameBoard : public QAbstractListModel
     Q_OBJECT
     QML_NAMED_ELEMENT(GameModel)
     Q_PROPERTY(size_t boardSize READ boardSize CONSTANT)
-    Q_PROPERTY(size_t tilesNumber READ tilesNumber CONSTANT)
 
     static constexpr size_t defaultBoardSize{4};
 public:
@@ -29,7 +28,6 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
     size_t boardSize() const;
-    size_t tilesNumber() const;
 
 private:
     void shuffle();
