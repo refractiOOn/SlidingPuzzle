@@ -7,27 +7,17 @@ RowLayout {
 
     property var gameModel
 
-    Button {
-        id: buttonReset
+    Repeater {
+        model: 2
 
-        Layout.preferredWidth: 50
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        Layout.margins: 5
+        delegate: Button {
+            Layout.preferredWidth: 50
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.margins: 5
 
-        text: qsTr("Reset")
-        onClicked: root.gameModel.currentToInitial()
-    }
-
-    Button {
-        id: buttonNewGame
-
-        Layout.preferredWidth: 50
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        Layout.margins: 5
-
-        text: qsTr("New Game")
-        onClicked: root.gameModel.newGame()
+            text: index === 0 ? qsTr("Reset") : qsTr("New Game")
+            onClicked: index === 0 ? root.gameModel.currentToInitial() : root.gameModel.newGame()
+        }
     }
 }

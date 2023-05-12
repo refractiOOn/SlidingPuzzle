@@ -4,7 +4,7 @@ Rectangle {
     id: root
 
     radius: 10
-    color: "lightgreen"
+    color: "#008b8b"
     border.color: "gray"
     border.width: 1
 
@@ -15,7 +15,7 @@ Rectangle {
         anchors.centerIn: root
 
         text: root.tileNumber
-        font.pointSize: Math.min(root.width, root.height) / 3
+        font.pointSize: Math.max(Math.min(root.width, root.height) / 3, 1)
         font.bold: true
     }
 }

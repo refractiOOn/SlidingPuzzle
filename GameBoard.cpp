@@ -4,17 +4,18 @@
 game::GameBoard::GameBoard(const size_t boardSize, QObject *parent) :
     QAbstractListModel{parent}, m_boardSize{boardSize}
 {
-    m_initialState.resize(qPow(m_boardSize, 2));
-
     // Fill the vector with the numbers [0, size)
+    m_initialState.resize(qPow(m_boardSize, 2));
     std::iota(m_initialState.begin(), m_initialState.end(), 0);
+
+    m_expectedState.resize(qPow(m_boardSize, 2));
+    std::iota(m_expectedState.begin(), m_expectedState.begin() + (m_expectedState.size() - 1), 1);
 
     // Set a seed to the random number generator
     std::random_device rd{};
     m_generator.seed(rd());
 
     // Shuffle the board
-    //shuffle();
     newGame();
 }
 
@@ -26,7 +27,9 @@ void game::GameBoard::newGame()
 
 void game::GameBoard::currentToInitial()
 {
+    // Return the current board state to the starting position
     m_currentState = m_initialState;
+    setPuzzleSolved(false);
     emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0));
 }
 
@@ -71,7 +74,22 @@ void game::GameBoard::moveElement(size_t index)
     {
         std::swap(m_currentState[index], m_currentState[blankElementIndex]);
         emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0));
+
+        if (checkCurrentState())
+        {
+            setPuzzleSolved(true);
+        }
     }
+}
+
+size_t game::GameBoard::boardSize() const
+{
+    return m_boardSize;
+}
+
+bool game::GameBoard::puzzleSolved() const
+{
+    return m_puzzleSolved;
 }
 
 void game::GameBoard::shuffle()
@@ -138,8 +156,21 @@ QVariant game::GameBoard::data(const QModelIndex &index, int role) const
     return QVariant::fromValue(value);
 }
 
-
-size_t game::GameBoard::boardSize() const
+void game::GameBoard::setPuzzleSolved(bool value)
 {
-    return m_boardSize;
+    if (m_puzzleSolved == value)
+        return;
+
+    m_puzzleSolved = value;
+    emit puzzleSolvedChanged();
+}
+
+bool game::GameBoard::checkCurrentState() const
+{
+    for (size_t i = 0; i < m_currentState.size(); ++i)
+    {
+        if (m_currentState[i].value() != m_expectedState[i].value())
+            return false;
+    }
+    return true;
 }
