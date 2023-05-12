@@ -1,23 +1,28 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import SlidingPuzzle
 
 RowLayout {
     id: root
 
-    property var gameModel
+    Button {
+        Layout.preferredWidth: 50
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.margins: 5
 
-    Repeater {
-        model: 2
+        text: qsTr("Reset")
+        onClicked: GameModel.currentToInitial()
+    }
 
-        delegate: Button {
-            Layout.preferredWidth: 50
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.margins: 5
+    Button {
+        Layout.preferredWidth: 50
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.margins: 5
 
-            text: index === 0 ? qsTr("Reset") : qsTr("New Game")
-            onClicked: index === 0 ? root.gameModel.currentToInitial() : root.gameModel.newGame()
-        }
+        text: qsTr("New Game")
+        onClicked: GameModel.newGame()
     }
 }

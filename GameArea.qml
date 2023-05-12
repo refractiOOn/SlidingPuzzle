@@ -1,15 +1,13 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
-import SlidingPuzzle 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import SlidingPuzzle
 
 ColumnLayout {
     id: root
 
     GameBoard {
         id: board
-
-        gameModel: model
 
         Layout.fillWidth: true
         Layout.fillHeight: true
@@ -19,8 +17,6 @@ ColumnLayout {
     GameController {
         id: controller
 
-        gameModel: model
-
         Layout.fillWidth: true
         Layout.fillHeight: true
         Layout.preferredHeight: 15
@@ -29,13 +25,13 @@ ColumnLayout {
     Dialog {
         id: notification
 
-        width: parent.width / 3
+        width: parent.width / 2
         anchors.centerIn: parent
 
         title: qsTr("The puzzle is solved!")
 
         standardButtons: Dialog.Yes | Dialog.Cancel
-        onAccepted: model.newGame()
+        onAccepted: GameModel.newGame()
 
         Text {
             anchors.centerIn: parent
@@ -43,11 +39,16 @@ ColumnLayout {
         }
     }
 
-    GameModel {
-        id: model
+//    GameModel.onPuzzleSolvedChanged: {
+//        if (GameModel.puzzleSolved) {
+//            notification.open();
+//        }
+//    }
 
+    Connections {
+        target: GameModel
         onPuzzleSolvedChanged: {
-            if (puzzleSolved === true) {
+            if (GameModel.puzzleSolved) {
                 notification.open();
             }
         }

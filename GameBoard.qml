@@ -1,13 +1,12 @@
-import QtQuick 2.15
+import QtQuick
+import SlidingPuzzle
 
 GridView {
     id: root
-    model: gameModel
+    model: GameModel
 
-    cellHeight: height / gameModel.boardSize
-    cellWidth: width / gameModel.boardSize
-
-    property var gameModel
+    cellHeight: height / GameModel.boardSize
+    cellWidth: width / GameModel.boardSize
 
     delegate: Item {
         id: backgroundDelegate
@@ -25,9 +24,7 @@ GridView {
             MouseArea {
                 anchors.fill: parent
 
-                onClicked: {
-                    root.gameModel.moveElement(index)
-                }
+                onClicked: GameModel.moveElement(index)
             }
         }
     }

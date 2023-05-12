@@ -10,7 +10,7 @@ qt_standard_project_setup(REQUIRES 6.5)
 
 set(CPP_SOURCE_FILES
     main.cpp
-    GameBoard.hpp GameBoard.cpp
+    GameModel.hpp GameModel.cpp
     Tile.hpp Tile.cpp
 )
 set(QML_SOURCE_FILES
