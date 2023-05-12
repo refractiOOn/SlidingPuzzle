@@ -19,6 +19,9 @@ class GameBoard : public QAbstractListModel
 public:
     explicit GameBoard(const size_t boardSize = defaultBoardSize, QObject *parent = nullptr);
 
+    Q_INVOKABLE void newGame();
+    Q_INVOKABLE void currentToInitial();
+
     Q_INVOKABLE void moveElement(size_t index);
 
     // QAbstractItemModel interface
@@ -32,7 +35,8 @@ private:
     void shuffle();
 
 private:
-    QVector<Tile> m_tiles{};
+    QVector<Tile> m_initialState{};
+    QVector<Tile> m_currentState{};
     size_t m_boardSize{};
     std::mt19937_64 m_generator{};
 

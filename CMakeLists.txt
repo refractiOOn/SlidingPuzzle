@@ -16,7 +16,9 @@ set(CPP_SOURCE_FILES
 set(QML_SOURCE_FILES
     Main.qml
     Tile.qml
+    GameArea.qml
     GameBoard.qml
+    GameController.qml
 )
 
 qt_add_executable(${PROJECT_NAME} ${CPP_SOURCE_FILES})

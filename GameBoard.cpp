@@ -4,17 +4,30 @@
 game::GameBoard::GameBoard(const size_t boardSize, QObject *parent) :
     QAbstractListModel{parent}, m_boardSize{boardSize}
 {
-    m_tiles.resize(qPow(m_boardSize, 2));
+    m_initialState.resize(qPow(m_boardSize, 2));
 
     // Fill the vector with the numbers from 1 to size() - 1
-    std::iota(m_tiles.begin(), m_tiles.end(), 1);
+    std::iota(m_initialState.begin(), m_initialState.end(), 1);
 
     // Set a seed to the random number generator
     std::random_device rd{};
     m_generator.seed(rd());
 
     // Shuffle the board
+    //shuffle();
+    newGame();
+}
+
+void game::GameBoard::newGame()
+{
     shuffle();
+    currentToInitial();
+}
+
+void game::GameBoard::currentToInitial()
+{
+    m_currentState = m_initialState;
+    emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0));
 }
 
 void game::GameBoard::moveElement(size_t index)
@@ -51,19 +64,19 @@ void game::GameBoard::moveElement(size_t index)
         return false;
     };
 
-    if (index >= m_tiles.size()) return;
+    if (index >= m_currentState.size()) return;
 
-    size_t hiddenElementIndex = std::find(m_tiles.begin(), m_tiles.end(), m_tiles.size()) - m_tiles.begin();
+    size_t hiddenElementIndex = std::find(m_currentState.begin(), m_currentState.end(), m_currentState.size()) - m_currentState.begin();
     if (isLegal(index, hiddenElementIndex))
     {
-        std::swap(m_tiles[index], m_tiles[hiddenElementIndex]);
-        emit dataChanged(createIndex(0, 0), createIndex(m_tiles.size(), 0));
+        std::swap(m_currentState[index], m_currentState[hiddenElementIndex]);
+        emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0));
     }
 }
 
 void game::GameBoard::shuffle()
 {
-    std::shuffle(m_tiles.begin(), m_tiles.end(), m_generator);
+    std::shuffle(m_initialState.begin(), m_initialState.end(), m_generator);
 }
 
 int game::GameBoard::rowCount(const QModelIndex &parent) const
@@ -71,7 +84,7 @@ int game::GameBoard::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
 
-    return m_tiles.size();
+    return m_currentState.size();
 }
 
 QVariant game::GameBoard::data(const QModelIndex &index, int role) const
@@ -79,7 +92,7 @@ QVariant game::GameBoard::data(const QModelIndex &index, int role) const
     if (!index.isValid() or role != Qt::DisplayRole)
         return QVariant{};
 
-    const size_t value = m_tiles.at(index.row()).value();
+    const size_t value = m_currentState.at(index.row()).value();
     return QVariant::fromValue(value);
 }
 
@@ -91,5 +104,5 @@ size_t game::GameBoard::boardSize() const
 
 size_t game::GameBoard::tilesNumber() const
 {
-    return m_tiles.size();
+    return m_currentState.size();
 }

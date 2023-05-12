@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Window
+import SlidingPuzzle 1.0
 
 Window {
     id: root
@@ -8,8 +9,8 @@ Window {
     visible: true
     title: qsTr("Sliding Puzzle")
 
-    GameBoard {
-        id: board
+    GameArea {
+        id: game
         anchors.fill: parent
     }
 }
