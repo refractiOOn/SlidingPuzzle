@@ -39,12 +39,6 @@ ColumnLayout {
         }
     }
 
-//    GameModel.onPuzzleSolvedChanged: {
-//        if (GameModel.puzzleSolved) {
-//            notification.open();
-//        }
-//    }
-
     Connections {
         target: GameModel
         onPuzzleSolvedChanged: {
