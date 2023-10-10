@@ -1,0 +1,6 @@
+# Out
+[Bb]uild/
+[Oo]ut/
+
+# CMake
+CMakeLists.txt.user
