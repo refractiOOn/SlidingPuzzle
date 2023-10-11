@@ -5,9 +5,9 @@ game::GameModel::GameModel(QObject *parent) :
     m_boardSize { DEFAULT_BOARD_SIZE },
     m_gameResult { false }
 {
-    m_roleNames.emplace(static_cast<int>(Role::NumberRole), "number");
-    m_roleNames.emplace(static_cast<int>(Role::IsBlankRole), "isBlank");
-    m_roleNames.emplace(static_cast<int>(Role::IndexRole), "index");
+    m_roleNames.emplace(Role::NumberRole, "number");
+    m_roleNames.emplace(Role::IsBlankRole, "isBlank");
+    m_roleNames.emplace(Role::IndexRole, "index");
 
     std::random_device randomDevice {};
     m_generator.seed(randomDevice());
@@ -21,7 +21,8 @@ void game::GameModel::setupBoard(const uint64_t boardSize)
 
     m_initialState.resize(std::pow(m_boardSize, 2));
     std::iota(m_initialState.begin(), m_initialState.end(), 1);
-    m_blankElementValue = m_initialState.back().value();
+    m_blankElementIndex = m_initialState.size() - 1;
+    m_blankElementValue = m_initialState[m_blankElementIndex].value();
 
     m_expectedState = m_initialState;
 
@@ -36,10 +37,10 @@ void game::GameModel::newGame()
 
 void game::GameModel::resetGame()
 {
+    beginResetModel();
     m_currentState = m_initialState;
     m_blankElementIndex = getBlankElementIndex();
-
-    emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0));
+    endResetModel();
 
     setGameResult(false);
 }
@@ -47,20 +48,18 @@ void game::GameModel::resetGame()
 void game::GameModel::moveElement(const uint64_t elementIndex)
 {
     if (elementIndex >= m_currentState.size()) return;
-
     if (!isMoveLegal(elementIndex, m_blankElementIndex)) return;
 
     std::swap(m_currentState[elementIndex], m_currentState[m_blankElementIndex]);
     m_blankElementIndex = elementIndex;
 
-    emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size(), 0)); // ???????????
+    emit dataChanged(createIndex(0, 0), createIndex(m_currentState.size() - 1, 0), m_roleNames.keys());
 
     const bool solved { checkCurrentState() };
     if (solved) setGameResult(true);
 }
 
 uint64_t game::GameModel::boardSize() const noexcept { return m_boardSize; }
-uint64_t game::GameModel::blankElementValue() const noexcept { return m_blankElementValue; }
 bool game::GameModel::gameResult() const noexcept { return m_gameResult; }
 
 QHash<int, QByteArray> game::GameModel::roleNames() const { return m_roleNames; }
@@ -76,10 +75,8 @@ QVariant game::GameModel::data(const QModelIndex &index, int role) const
     const int rowIndex { index.row() };
     if (!index.isValid() || rowIndex >= m_currentState.size()) return QVariant {};
 
-    const Role castedRole { static_cast<Role>(role) };
-
     QVariant result {};
-    switch (castedRole)
+    switch (role)
     {
         case Role::NumberRole: result = QVariant::fromValue(m_currentState[rowIndex].value()); break;
         case Role::IsBlankRole: result = QVariant::fromValue(m_currentState[rowIndex].value() == m_blankElementValue); break;
@@ -100,8 +97,7 @@ void game::GameModel::shuffle()
 
 uint64_t game::GameModel::getBlankElementIndex() const noexcept
 {
-    const auto blankElementIt { std::find(m_initialState.begin(), m_initialState.end(),
-                                          m_blankElementValue) };
+    const auto blankElementIt { std::find(m_initialState.begin(), m_initialState.end(), m_blankElementValue) };
     const int64_t result { blankElementIt - m_initialState.begin() };
     return static_cast<uint64_t>(result);
 }

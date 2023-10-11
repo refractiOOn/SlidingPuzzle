@@ -54,7 +54,6 @@ Item {
 
             onClicked: {
                 _newGameWindow.open()
-                // gameModel.newGame()
             }
         }
     }
@@ -129,7 +128,16 @@ Item {
 
         onAccepted: {
             gameModel.setupBoard(_spinBox.value)
-            // gameModel.boardSize = _spinBox.value
+        }
+    }
+
+    Connections {
+        target: gameModel
+
+        onGameResultChanged: {
+            if (!gameModel.gameResult) return
+
+            _puzzleSolvedWindow.open()
         }
     }
 }

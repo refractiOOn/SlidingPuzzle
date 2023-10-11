@@ -17,13 +17,12 @@ class GameModel : public QAbstractListModel
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(GameModel)
 
-    Q_PROPERTY(uint64_t boardSize READ boardSize WRITE setBoardSize NOTIFY boardSizeChanged)
-    Q_PROPERTY(uint64_t blankElementValue READ blankElementValue NOTIFY blankElementValueChanged)
-    Q_PROPERTY(bool gameResult READ gameResult WRITE setGameResult NOTIFY gameResultChanged)
+    Q_PROPERTY(uint64_t boardSize READ boardSize NOTIFY boardSizeChanged)
+    Q_PROPERTY(bool gameResult READ gameResult NOTIFY gameResultChanged)
 
     static constexpr uint64_t DEFAULT_BOARD_SIZE { 4 };
 
-    enum class Role
+    enum Role
     {
         NumberRole = Qt::ItemDataRole::UserRole,
         IsBlankRole,
@@ -42,7 +41,6 @@ public:
     Q_INVOKABLE void moveElement(const uint64_t elementIndex);
 
     [[nodiscard]] uint64_t boardSize() const noexcept;
-    [[nodiscard]] uint64_t blankElementValue() const noexcept;
     [[nodiscard]] bool gameResult() const noexcept;
 
     [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
@@ -75,16 +73,14 @@ private:
     std::vector<GameTile> m_currentState;
     std::vector<GameTile> m_expectedState;
 
-    uint64_t m_blankElementValue;
     uint64_t m_blankElementIndex;
-    Position m_blankElementPosition;
+    uint64_t m_blankElementValue;
 
     std::mt19937_64 m_generator;
 
 signals:
     void boardSizeChanged();
     void gameResultChanged();
-    void blankElementValueChanged();
 
 }; // class GameModel
 
