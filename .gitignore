@@ -1,19 +1,12 @@
-<<<<<<< HEAD
 # Git
 .git/
-=======
+
 # Out
 [Bb]uild/
 [Oo]ut/
->>>>>>> new_version
 
 # CMake
 CMakeLists.txt.user
 
-<<<<<<< HEAD
-# Build
-build/
-=======
 # CLion
 .idea
->>>>>>> new_version
