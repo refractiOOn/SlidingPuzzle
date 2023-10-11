@@ -1,9 +1,15 @@
+<<<<<<< HEAD
 cmake_minimum_required(VERSION 3.26)
+=======
+cmake_minimum_required(VERSION 3.24)
+
+>>>>>>> new_version
 project(SlidingPuzzle VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+<<<<<<< HEAD
 find_package(Qt6 6.5 REQUIRED COMPONENTS Quick QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.5)
@@ -39,3 +45,8 @@ install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+=======
+find_package(Qt6 6.6 REQUIRED COMPONENTS Core Quick QuickControls2)
+
+add_subdirectory(src)
+>>>>>>> new_version
